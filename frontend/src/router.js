@@ -7,6 +7,7 @@ export class Router {
         this.titlePageElement = document.getElementById('title');
         this.contentPageElement = document.getElementById('content');
         this.adminLteStyleElement = document.getElementById('adminlte_style');
+
         this.initEvents();
 
         this.routes = [
@@ -33,7 +34,7 @@ export class Router {
                 load: () => {
                     document.body.classList.add('login-page');
                     document.body.style.height = '100vh'
-                    new Login();
+                    new Login(this.openNewRoute.bind(this));
                 },
                 unload: () => {
                     document.body.classList.remove('login-page');
@@ -49,7 +50,7 @@ export class Router {
                 load: () => {
                     document.body.classList.add('register-page');
                     document.body.style.height = '100vh'
-                    new SignUp()
+                    new SignUp(this.openNewRoute.bind(this))
                 },
                 unload: () => {
                     document.body.classList.remove('register-page');
@@ -57,20 +58,23 @@ export class Router {
                 },
                 styles: ['icheck-bootstrap.min.css']
             },
-
         ]
-
-
     }
 
     initEvents() {
         window.addEventListener('DOMContentLoaded', this.activateRoute.bind(this));
         window.addEventListener('popstate', this.activateRoute.bind(this));
-        document.addEventListener('click', this.openNewRoute.bind(this));
+        document.addEventListener('click', this.clickHandler.bind(this));
 
     }
 
-   async openNewRoute(e) {
+    async openNewRoute(url) {
+        const currentRoute = window.location.pathname;
+        history.pushState({}, '', url);
+        await this.activateRoute(null, currentRoute)
+    }
+
+   async clickHandler(e) {
         e.preventDefault()
 
         let element = null
@@ -88,10 +92,7 @@ export class Router {
                 return;
             }
 
-            const currentRoute = window.location.pathname;
-            history.pushState({}, '', url);
-            await this.activateRoute(null, currentRoute)
-
+          await this.openNewRoute(url)
         }
     }
 
@@ -124,7 +125,7 @@ export class Router {
             }
 
             if (newRoute.title) {
-                this.titlePageElement.innerText = newRoute.title + '| Freelance Studio'
+                this.titlePageElement.innerText = newRoute.title + ' | Freelance Studio'
             }
 
             if (newRoute.filePathTemplate) {
