@@ -1,6 +1,7 @@
 import {Dashboard} from "./components/dashboard";
 import {Login} from "./components/login";
 import {SignUp} from "./components/sign-up";
+import {Logout} from "./components/logout";
 
 export class Router {
     constructor() {
@@ -58,6 +59,13 @@ export class Router {
                 },
                 styles: ['icheck-bootstrap.min.css']
             },
+            {
+                route: '/logout',
+                load: () => {
+                    new Logout(this.openNewRoute.bind(this))
+                },
+
+            }
         ]
     }
 
@@ -142,6 +150,7 @@ export class Router {
                 contentBlock.innerHTML = await fetch(newRoute.filePathTemplate).then(response => response.text())
 
             }
+
 
 
             if (newRoute.load && typeof newRoute.load === 'function') {

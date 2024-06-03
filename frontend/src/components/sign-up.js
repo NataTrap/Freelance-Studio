@@ -1,6 +1,11 @@
+import {AuthUtils} from "../utils/auth-utils";
+import config from "../config/config";
+import {HttpUtils} from "../utils/http-utils";
+
 export class SignUp {
     constructor(openNewRoute) {
-        if (localStorage.getItem('access-token')) {
+
+        if (AuthUtils.getAuthInfo(AuthUtils.accessTokenKey)) {
             return this.openNewRoute('/')
         }
         this.openNewRoute = openNewRoute
@@ -11,7 +16,13 @@ export class SignUp {
         this.passwordRepeatElement =  document.getElementById('repeat-password');
         this.agreeElement =  document.getElementById('agree');
         this.commonErrorElement = document.getElementById('common-error');
-        document.getElementById('process-button').addEventListener('click', this.signUp.bind(this));
+
+        document.getElementById("remember-me-wrapper")
+            .addEventListener("click", (e) => {
+                this.agreeElement.checked = !this.agreeElement.checked;
+            });
+
+                document.getElementById('process-button').addEventListener('click', this.signUp.bind(this));
     }
 
     validateForm () {
@@ -29,7 +40,6 @@ export class SignUp {
             this.lastNameElement.classList.add('is-invalid');
             isValid = false
         }
-
 
         if (this.emailElement.value && this.emailElement.value.match(/\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,6}/)) {
             this.emailElement.classList.remove('is-invalid');
@@ -61,31 +71,21 @@ export class SignUp {
     async signUp() {
         this.commonErrorElement.style.display = 'none'
         if ( this.validateForm()) {
-            const response = await fetch('http://localhost:3000/api/signup',{
-                method: 'POST',
-                headers: {
-                    'Content-type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: this.nameElement.value,
-                    lastName: this.lastNameElement.value,
-                    email: this.emailElement.value,
-                    password: this.passwordElement.value,
-                })
-            });
-            const result = await response.json()
-            console.log(result)
 
-            if (result.error || !result.accessToken || !result.refreshToken || !result.id || !result.name) {
+            const result = await HttpUtils.request('/signup', 'POST', {
+                name: this.nameElement.value,
+                lastName: this.lastNameElement.value,
+                email: this.emailElement.value,
+                password: this.passwordElement.value,
+            })
+
+
+            if (result.error || !result.response || (result.response && ( !result.response.accessToken || !result.response.refreshToken || !result.response.id || !result.response.name) )) {
                 this.commonErrorElement.style.display = 'block'
                 return;
             }
 
-            localStorage.setItem("accessToken", result.accessToken);
-            localStorage.setItem("refreshToken", result.refreshToken);
-            localStorage.setItem("userInfo", JSON.stringify({id: result.id, name: result.name}));
-
+            AuthUtils.setAuthInfo(result.response.accessToken, result.response.refreshToken,{id: result.response.id, name: result.response.name} )
             this.openNewRoute('/');
         }
 
