@@ -4,6 +4,15 @@ import {SignUp} from "./components/auth/sign-up";
 import {Logout} from "./components/auth/logout";
 import {FreelancersList} from "./components/freelancers/freelancers-list";
 import {FileUtils} from "./utils/file-utils";
+import {FreelancersView} from "./components/freelancers/freelancers-view";
+import {FreelancersCreate} from "./components/freelancers/freelancers-create";
+import {FreelancersEdit} from "./components/freelancers/freelancers-edit";
+import {FreelancersDelete} from "./components/freelancers/freelancers-delete";
+import {OrdersList} from "./components/orders/orders-list";
+import {OrdersView} from "./components/orders/orders-view";
+import {OrdersCreate} from "./components/orders/orders-create";
+import {OrdersEdit} from "./components/orders/orders-edit";
+import {OrdersDelete} from "./components/orders/orders-delete";
 
 export class Router {
     constructor() {
@@ -77,7 +86,117 @@ export class Router {
                 },
                 styles: ['dataTables.bootstrap4.min.css'],
                 scripts: ['jquery.dataTables.min.js', 'dataTables.bootstrap4.min.js']
-            }
+            },
+            {
+                route: '/freelancers/view',
+                title: 'Фрилансеры',
+                filePathTemplate: '/templates/pages/freelancers/view.html',
+                useLayout: '/templates/layout.html',
+                load: () => {
+                    new FreelancersView(this.openNewRoute.bind(this));
+                }
+            },
+            {
+                route: '/freelancers/create',
+                title: 'Создание фрилансера',
+                filePathTemplate: '/templates/pages/freelancers/create.html',
+                useLayout: '/templates/layout.html',
+                load: () => {
+                    new FreelancersCreate(this.openNewRoute.bind(this));
+                },
+                scripts: [
+                   'bs-custom-file-input.min.js'
+                ]
+            },
+            {
+                route: '/freelancers/edit',
+                title: 'Редактирование фрилансера',
+                filePathTemplate: '/templates/pages/freelancers/edit.html',
+                useLayout: '/templates/layout.html',
+                load: () => {
+                    new FreelancersEdit(this.openNewRoute.bind(this));
+                },
+                scripts: [
+                   'bs-custom-file-input.min.js'
+                ]
+            },
+            {
+                route: '/freelancers/delete',
+                load: () => {
+                    new FreelancersDelete(this.openNewRoute.bind(this));
+                },
+            },
+            {
+                route: '/orders',
+                title: 'Заказы',
+                filePathTemplate: '/templates/pages/orders/list.html',
+                useLayout: '/templates/layout.html',
+                load: () => {
+                    new OrdersList(this.openNewRoute.bind(this))
+                },
+                styles: ['dataTables.bootstrap4.min.css'],
+                scripts: ['jquery.dataTables.min.js', 'dataTables.bootstrap4.min.js']
+            },
+
+            {
+                route: '/orders/view',
+                title: 'Заказ',
+                filePathTemplate: '/templates/pages/orders/view.html',
+                useLayout: '/templates/layout.html',
+                load: () => {
+                    new OrdersView(this.openNewRoute.bind(this));
+                }
+            },
+            {
+                route: '/orders/create',
+                title: 'Создание заказа',
+                filePathTemplate: '/templates/pages/orders/create.html',
+                useLayout: '/templates/layout.html',
+                load: () => {
+                    new OrdersCreate(this.openNewRoute.bind(this));
+                },
+
+                scripts: [
+                    'moment.min.js',
+                    'moment-ru-locale.js',
+                    'tempusdominus-bootstrap-4.min.js',
+                    'select2.full.min.js'
+                ],
+
+                styles: [
+                  'tempusdominus-bootstrap-4.min.css',
+                    'select2.min.css',
+                    'select2-bootstrap4.min.css'
+                ],
+            },
+            {
+                route: '/orders/delete',
+                load: () => {
+                    new OrdersDelete(this.openNewRoute.bind(this));
+                },
+            },
+
+            {
+                route: '/orders/edit',
+                title: 'Редактирование заказа ',
+                filePathTemplate: '/templates/pages/orders/edit.html',
+                useLayout: '/templates/layout.html',
+                load: () => {
+                    new OrdersEdit(this.openNewRoute.bind(this));
+                },
+                scripts: [
+                    'moment.min.js',
+                    'moment-ru-locale.js',
+                    'tempusdominus-bootstrap-4.min.js',
+                    'select2.full.min.js'
+                ],
+
+                styles: [
+                    'tempusdominus-bootstrap-4.min.css',
+                    'select2.min.css',
+                    'select2-bootstrap4.min.css'
+                ],
+            },
 
         ]
     }
@@ -97,7 +216,6 @@ export class Router {
 
    async clickHandler(e) {
         e.preventDefault()
-
         let element = null
         if (e.target.nodeName === 'A') {
             element = e.target
