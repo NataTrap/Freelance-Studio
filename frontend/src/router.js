@@ -29,8 +29,17 @@ export class Router {
                 filePathTemplate: '/templates/pages/dashboard.html',
                 useLayout: '/templates/layout.html',
                 load: () => {
-                    new Dashboard();
-                }
+                    new Dashboard(this.openNewRoute.bind(this));
+                },
+                scripts: [
+                    'moment.min.js',
+                    'moment-ru-locale.js',
+                    'fullcalendar.js',
+                    'fullcalendar-locale-ru.js'
+                ],
+                styles: [
+                    'fullcalendar.css'
+                ]
             },
             {
                 route: '/404',
@@ -105,7 +114,7 @@ export class Router {
                     new FreelancersCreate(this.openNewRoute.bind(this));
                 },
                 scripts: [
-                   'bs-custom-file-input.min.js'
+                    'bs-custom-file-input.min.js'
                 ]
             },
             {
@@ -117,7 +126,7 @@ export class Router {
                     new FreelancersEdit(this.openNewRoute.bind(this));
                 },
                 scripts: [
-                   'bs-custom-file-input.min.js'
+                    'bs-custom-file-input.min.js'
                 ]
             },
             {
@@ -164,7 +173,7 @@ export class Router {
                 ],
 
                 styles: [
-                  'tempusdominus-bootstrap-4.min.css',
+                    'tempusdominus-bootstrap-4.min.css',
                     'select2.min.css',
                     'select2-bootstrap4.min.css'
                 ],
@@ -214,7 +223,7 @@ export class Router {
         await this.activateRoute(null, currentRoute)
     }
 
-   async clickHandler(e) {
+    async clickHandler(e) {
         e.preventDefault()
         let element = null
         if (e.target.nodeName === 'A') {
@@ -228,11 +237,11 @@ export class Router {
             e.preventDefault()
             const currentRoute = window.location.pathname;
             const url = element.href.replace(window.location.origin, '')
-            if (!url ||  (currentRoute === url.replace('#', ''))|| url.startsWith('javascript:void(0)')) {
+            if (!url || (currentRoute === url.replace('#', '')) || url.startsWith('javascript:void(0)')) {
                 return;
             }
 
-          await this.openNewRoute(url)
+            await this.openNewRoute(url)
         }
     }
 
@@ -262,13 +271,13 @@ export class Router {
         if (newRoute) {
             if (newRoute.styles && newRoute.styles.length > 0) {
                 newRoute.styles.forEach(style => {
-                FileUtils.loadPageStyles('/css/' + style,  this.adminLteStyleElement)
+                    FileUtils.loadPageStyles('/css/' + style, this.adminLteStyleElement)
                 })
             }
 
             if (newRoute.scripts && newRoute.scripts.length > 0) {
                 for (const script of newRoute.scripts) {
-                   await FileUtils.loadPageScript('/js/' + script)
+                    await FileUtils.loadPageScript('/js/' + script)
                 }
 
 
@@ -285,6 +294,7 @@ export class Router {
                     contentBlock = document.getElementById('content-layout');
                     document.body.classList.add('sidebar-mini');
                     document.body.classList.add('layout-fixed');
+                    this.activateMenuItem(newRoute)
                 } else {
                     document.body.classList.remove('sidebar-mini');
                     document.body.classList.remove('layout-fixed');
@@ -292,7 +302,6 @@ export class Router {
                 contentBlock.innerHTML = await fetch(newRoute.filePathTemplate).then(response => response.text())
 
             }
-
 
 
             if (newRoute.load && typeof newRoute.load === 'function') {
@@ -304,5 +313,16 @@ export class Router {
             await this.activateRoute()
         }
 
+    }
+
+    activateMenuItem(route) {
+        document.querySelectorAll('.sidebar .nav-link').forEach(item => {
+            const href = item.getAttribute('href')
+            if ((route.route.includes(href) && href !== '/' ) || (route.route === '/' && href === '/')) {
+                item.classList.add('active')
+            } else {
+                item.classList.remove('active')
+            }
+        })
     }
 }
